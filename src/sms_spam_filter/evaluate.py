@@ -9,12 +9,12 @@ from pathlib import Path
 import joblib
 
 from .data import TARGET, read_input
-from .modeling import metrics, robustness_report
+from .modeling import metrics, robustness_report, validate_model_bundle
 
 
 def evaluate(input_path: str | Path, artifact_path: str | Path) -> dict[str, object]:
     data = read_input(input_path)
-    artifact = joblib.load(artifact_path)
+    artifact = validate_model_bundle(joblib.load(artifact_path))
     probability = artifact["model"].predict_proba(data["text"])[:, 1]
     result = metrics(data[TARGET], probability, artifact["threshold"])
     result["obfuscation"] = robustness_report(

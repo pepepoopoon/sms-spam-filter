@@ -4,11 +4,12 @@ import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import joblib
 import pandas as pd
 
 from sms_spam_filter.data import make_smoke_data, read_input, validate_schema
 from sms_spam_filter.evaluate import evaluate
-from sms_spam_filter.modeling import choose_model_for_precision
+from sms_spam_filter.modeling import ModelArtifactError, choose_model_for_precision
 from sms_spam_filter.predict import predict, score_messages
 from sms_spam_filter.train import train
 
@@ -80,6 +81,13 @@ class SMSPipelineTest(unittest.TestCase):
             self.assertIn("obfuscation", evaluation)
             self.assertEqual(len(scored), 2)
             self.assertEqual(len(direct), 1)
+
+            incompatible_path = output / "incompatible.joblib"
+            incompatible = joblib.load(output / "model.joblib")
+            incompatible["label_semantics"] = {"0": "spam", "1": "ham"}
+            joblib.dump(incompatible, incompatible_path)
+            with self.assertRaisesRegex(ModelArtifactError, "label semantics"):
+                score_messages(pd.Series(["hello"]), incompatible_path)
 
 
 if __name__ == "__main__":

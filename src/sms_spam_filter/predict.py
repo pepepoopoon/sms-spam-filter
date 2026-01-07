@@ -9,10 +9,11 @@ import joblib
 import pandas as pd
 
 from .data import read_input
+from .modeling import validate_model_bundle
 
 
 def score_messages(messages: pd.Series, artifact_path: str | Path) -> pd.DataFrame:
-    artifact = joblib.load(artifact_path)
+    artifact = validate_model_bundle(joblib.load(artifact_path))
     probability = artifact["model"].predict_proba(messages)[:, 1]
     return pd.DataFrame(
         {

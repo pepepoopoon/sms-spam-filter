@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 
 from .data import TARGET, read_input
 from .modeling import (
+    MODEL_BUNDLE_VERSION,
     candidate_models,
     choose_model_for_precision,
     choose_precision_threshold,
@@ -74,6 +75,7 @@ def train(
         "data_note": "Metrics describe the supplied file; smoke data are not real evaluation.",
     }
     artifact = {
+        "bundle_version": MODEL_BUNDLE_VERSION,
         "model": model,
         "threshold": threshold,
         "selected_model": selected_name,

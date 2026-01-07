@@ -6,6 +6,21 @@
 precision: ошибочная блокировка обычного сообщения считается особенно нежелательной.
 Модель должна быть частью многоуровневой защиты, а не единственным основанием блокировки.
 
+## Структура каталогов
+
+- `src/sms_spam_filter/` — загрузка, TF-IDF pipelines, порог и train/evaluate/predict CLI;
+- `tests/` — проверки дедупликации, порога, артефакта и полного smoke-pipeline;
+- `data/README.md` — источник и формат корпуса; `notebooks/` — исполненный smoke-эксперимент;
+- `artifacts/` — локальная модель, метрики и test predictions.
+
+## Используемые технологии
+
+Python 3.11, NumPy, pandas, scikit-learn и joblib; pytest и Ruff для QA.
+
+## Требования к окружению
+
+Python `>=3.11,<3.12` и `pip`; Makefile использует `python3.11`. Установка: `make install`.
+
 ## Данные
 
 Целевой источник — [UCI SMS Spam Collection](https://archive.ics.uci.edu/dataset/228/sms+spam+collection),
@@ -24,7 +39,8 @@ precision: ошибочная блокировка обычного сообще
 Текст приводится к casefold и нормализованным пробелам для fingerprint. Конфликтующие
 метки одного fingerprint запрещены, дубликаты удаляются до стратифицированного split
 `60/20/20`. TF-IDF обучается только на train. На validation выбираются представление и
-порог, test используется один раз для итогового отчёта.
+порог, test используется один раз для итогового отчёта. Перед оценкой проверяются версия
+model bundle, семантика классов, допустимость порога и интерфейс `predict_proba`.
 
 ## Baseline и эксперименты
 
@@ -76,3 +92,7 @@ make test
 
 Добавить временной holdout, языковые срезы, sender-признаки с privacy review, bootstrap
 интервалы и мониторинг precision среди проверенных сообщений.
+## Статус проекта
+
+Word/character TF-IDF, precision-oriented threshold и synthetic smoke-проверка готовы.
+Итоговые метрики на зафиксированной версии UCI SMS Spam Collection ещё не заявлены.

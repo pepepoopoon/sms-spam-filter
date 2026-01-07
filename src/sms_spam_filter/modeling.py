@@ -18,6 +18,39 @@ from sklearn.metrics import (
 from sklearn.pipeline import FeatureUnion, Pipeline
 
 KEYWORDS = ("free", "win", "winner", "claim", "urgent", "prize", "reward")
+MODEL_BUNDLE_VERSION = 1
+
+
+class ModelArtifactError(ValueError):
+    """Saved SMS model bundle is incompatible with the current scorer."""
+
+
+def validate_model_bundle(bundle: object) -> dict[str, object]:
+    """Validate version, label semantics, threshold, and probability interface."""
+    if not isinstance(bundle, dict):
+        raise ModelArtifactError("Model bundle must be a dictionary")
+    required = {
+        "bundle_version",
+        "model",
+        "threshold",
+        "selected_model",
+        "min_precision",
+        "label_semantics",
+        "seed",
+    }
+    missing = sorted(required.difference(bundle))
+    if missing:
+        raise ModelArtifactError(f"Model bundle is missing keys: {missing}")
+    if bundle["bundle_version"] != MODEL_BUNDLE_VERSION:
+        raise ModelArtifactError(f"Unsupported model bundle version: {bundle['bundle_version']}")
+    if bundle["label_semantics"] != {"0": "ham", "1": "spam"}:
+        raise ModelArtifactError("Model bundle label semantics are incompatible")
+    if not callable(getattr(bundle["model"], "predict_proba", None)):
+        raise ModelArtifactError("Model bundle does not provide predict_proba")
+    threshold = float(bundle["threshold"])
+    if not np.isfinite(threshold) or not 0 <= threshold <= 1:
+        raise ModelArtifactError("Model bundle threshold must be finite and within [0, 1]")
+    return bundle
 
 
 def candidate_models(seed: int = 42) -> dict[str, Pipeline]:
