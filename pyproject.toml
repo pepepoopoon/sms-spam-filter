@@ -23,6 +23,7 @@ sms-spam-train = "sms_spam_filter.train:main"
 sms-spam-evaluate = "sms_spam_filter.evaluate:main"
 sms-spam-predict = "sms_spam_filter.predict:main"
 sms-spam-smoke-data = "sms_spam_filter.data:main"
+sms-spam-experiment = "sms_spam_filter.experiments:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
