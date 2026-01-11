@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from .data import TARGET, make_smoke_data, validate_schema
-from .modeling import candidate_models, choose_precision_threshold, metrics
+from .modeling import candidate_models, choose_precision_threshold, keyword_probability, metrics
 
 
 @dataclass(frozen=True)
@@ -45,6 +45,32 @@ def split_messages(
     )
 
 
+def precision_threshold_diagnostics(
+    truth: pd.Series, probability, targets: tuple[float, ...] = (0.8, 0.9, 0.95, 0.99)
+) -> dict[str, object]:
+    """Measure a fixed threshold curve and feasible points for precision targets."""
+    curve = []
+    for threshold in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
+        report = metrics(truth, probability, threshold)
+        matrix = report["confusion_matrix"]
+        curve.append(
+            {
+                "threshold": threshold,
+                "precision": report["precision"],
+                "recall": report["recall"],
+                "f1": report["f1"],
+                "predicted_spam": matrix["tp"] + matrix["fp"],
+            }
+        )
+    return {
+        "curve": curve,
+        "operating_points": {
+            str(target): choose_precision_threshold(truth, probability, target)
+            for target in targets
+        },
+    }
+
+
 def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     """Fit word TF-IDF and measure the selected precision operating point."""
     if min(config.ham_count, config.spam_count) < 20:
@@ -60,7 +86,14 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     threshold = choose_precision_threshold(
         validation[TARGET], validation_probability, config.min_precision
     )
+    threshold_diagnostics = precision_threshold_diagnostics(
+        validation[TARGET], validation_probability
+    )
     test_probability = model.predict_proba(test["text"])[:, 1]
+    test_metrics = metrics(test[TARGET], test_probability, float(threshold["threshold"]))
+    baseline_metrics = metrics(test[TARGET], keyword_probability(test["text"]), 0.5)
+    model_ap = float(test_metrics["average_precision"])
+    baseline_ap = float(baseline_metrics["average_precision"])
 
     return {
         "schema_version": 1,
@@ -68,10 +101,18 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
         "split": {"train": len(train), "validation": len(validation), "test": len(test)},
         "model": "word_tfidf",
         "precision_constraint": threshold,
+        "threshold_diagnostics": threshold_diagnostics,
         "validation_metrics": metrics(
             validation[TARGET], validation_probability, float(threshold["threshold"])
         ),
-        "test_metrics": metrics(test[TARGET], test_probability, float(threshold["threshold"])),
+        "test_metrics": test_metrics,
+        "keyword_baseline": baseline_metrics,
+        "baseline_comparison": {
+            "candidate": "word_tfidf",
+            "baseline": "keyword_rule",
+            "average_precision_lift": model_ap - baseline_ap,
+            "recall_lift": float(test_metrics["recall"]) - float(baseline_metrics["recall"]),
+        },
     }
 
 
