@@ -8,6 +8,7 @@ import pandas as pd
 from sms_spam_filter.experiments import (
     ExperimentConfig,
     main,
+    obfuscate_messages,
     precision_threshold_diagnostics,
     run_experiment,
 )
@@ -122,6 +123,28 @@ def test_vectorizer_configuration_reports_sparse_features() -> None:
     assert result["baseline_comparison"]["candidate"] == "char_tfidf"
     assert 0 < diagnostics["features"] <= 700
     assert 0 < diagnostics["density"] < 1
+
+
+def test_obfuscation_diagnostics_measure_probability_shift() -> None:
+    result = run_experiment(
+        ExperimentConfig(
+            label="spaced-keywords",
+            seed=41,
+            ham_count=90,
+            spam_count=36,
+            min_precision=0.9,
+            vectorizer="char_tfidf",
+            obfuscation="spaced",
+        )
+    )
+
+    diagnostics = result["obfuscation_diagnostics"]
+    changed = obfuscate_messages(pd.Series(["FREE prize now"]), "spaced")
+
+    assert changed.iloc[0] == "f r e e p r i z e now"
+    assert diagnostics["scenario"] == "spaced"
+    assert diagnostics["changed_messages"] > 0
+    assert -1 <= diagnostics["mean_probability_shift"] <= 1
 
 
 def test_experiment_cli_writes_json(tmp_path) -> None:

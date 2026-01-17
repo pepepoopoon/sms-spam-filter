@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -11,7 +12,14 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from .data import TARGET, make_smoke_data, validate_schema
-from .modeling import candidate_models, choose_precision_threshold, keyword_probability, metrics
+from .modeling import (
+    KEYWORDS,
+    candidate_models,
+    choose_precision_threshold,
+    keyword_probability,
+    metrics,
+    obfuscate_message,
+)
 
 
 @dataclass(frozen=True)
@@ -29,6 +37,7 @@ class ExperimentConfig:
     char_ngram_min: int = 3
     char_ngram_max: int = 5
     max_features: int = 25_000
+    obfuscation: str = "none"
 
 
 def build_model(config: ExperimentConfig, seed: int):
@@ -62,6 +71,52 @@ def vectorizer_diagnostics(model, messages: pd.Series) -> dict[str, float | int]
         "features": matrix.shape[1],
         "nonzero_values": int(matrix.nnz),
         "density": float(matrix.nnz / total_cells) if total_cells else 0.0,
+    }
+
+
+def obfuscate_messages(messages: pd.Series, kind: str) -> pd.Series:
+    """Apply one deterministic spam-keyword transformation."""
+    if kind == "none":
+        return messages.copy()
+    if kind == "leetspeak":
+        return messages.map(obfuscate_message)
+
+    def replace(text: str) -> str:
+        result = text
+        for keyword in KEYWORDS:
+            if kind == "spaced":
+                replacement = " ".join(keyword)
+            elif kind == "punctuated":
+                replacement = ".".join(keyword)
+            elif kind == "mixed_case":
+                replacement = "".join(
+                    character.upper() if index % 2 else character.lower()
+                    for index, character in enumerate(keyword)
+                )
+            else:
+                raise ValueError(f"unsupported obfuscation: {kind}")
+            result = re.sub(keyword, replacement, result, flags=re.IGNORECASE)
+        return result
+
+    return messages.map(replace)
+
+
+def obfuscation_diagnostics(
+    model, spam_messages: pd.Series, threshold: float, kind: str
+) -> dict[str, float | int | str]:
+    """Measure probability and detection changes after keyword obfuscation."""
+    if spam_messages.empty:
+        return {"scenario": kind, "messages": 0}
+    mutated = obfuscate_messages(spam_messages, kind)
+    original_probability = model.predict_proba(spam_messages)[:, 1]
+    mutated_probability = model.predict_proba(mutated)[:, 1]
+    return {
+        "scenario": kind,
+        "messages": len(spam_messages),
+        "changed_messages": int((mutated != spam_messages).sum()),
+        "original_detection_rate": float((original_probability >= threshold).mean()),
+        "obfuscated_detection_rate": float((mutated_probability >= threshold).mean()),
+        "mean_probability_shift": float((mutated_probability - original_probability).mean()),
     }
 
 
@@ -170,6 +225,12 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     )
     test_probability = model.predict_proba(test["text"])[:, 1]
     test_metrics = metrics(test[TARGET], test_probability, float(threshold["threshold"]))
+    obfuscation = obfuscation_diagnostics(
+        model,
+        test.loc[test[TARGET].eq(1), "text"],
+        float(threshold["threshold"]),
+        config.obfuscation,
+    )
     baseline_metrics = metrics(test[TARGET], keyword_probability(test["text"]), 0.5)
     model_ap = float(test_metrics["average_precision"])
     baseline_ap = float(baseline_metrics["average_precision"])
@@ -180,6 +241,7 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
         "split": {"train": len(train), "validation": len(validation), "test": len(test)},
         "model": config.vectorizer,
         "vectorizer_diagnostics": vectorizer_diagnostics(model, train["text"]),
+        "obfuscation_diagnostics": obfuscation,
         "precision_constraint": threshold,
         "threshold_diagnostics": threshold_diagnostics,
         "imbalance_diagnostics": balance,
@@ -224,6 +286,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--char-ngram-min", type=int, default=3)
     parser.add_argument("--char-ngram-max", type=int, default=5)
     parser.add_argument("--max-features", type=int, default=25_000)
+    parser.add_argument(
+        "--obfuscation",
+        choices=["none", "leetspeak", "spaced", "punctuated", "mixed_case"],
+        default="none",
+    )
     args = parser.parse_args(argv)
     config = ExperimentConfig(
         label=args.label,
@@ -237,6 +304,7 @@ def main(argv: list[str] | None = None) -> None:
         char_ngram_min=args.char_ngram_min,
         char_ngram_max=args.char_ngram_max,
         max_features=args.max_features,
+        obfuscation=args.obfuscation,
     )
     write_result(run_experiment(config), args.output)
     print(f"experiment {config.label} written to {args.output}")
