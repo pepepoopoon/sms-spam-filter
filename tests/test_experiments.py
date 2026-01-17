@@ -81,6 +81,49 @@ def test_precision_threshold_curve_tracks_alert_volume() -> None:
     assert direct["curve"][4]["predicted_spam"] == 2
 
 
+def test_imbalance_diagnostics_measure_split_prevalence() -> None:
+    result = run_experiment(
+        ExperimentConfig(
+            label="imbalance",
+            seed=31,
+            ham_count=100,
+            spam_count=20,
+            min_precision=0.9,
+        )
+    )
+
+    balance = result["imbalance_diagnostics"]
+    assert balance["requested"] == {"ham": 100, "spam": 20}
+    assert balance["partitions"]["full"]["ham"] == 84
+    assert balance["partitions"]["full"]["spam"] == 20
+    assert balance["deduplicated_messages"] == 16
+    assert balance["partitions"]["full"]["ham_to_spam_ratio"] == 4.2
+    assert balance["max_absolute_prevalence_shift"] < 0.03
+
+
+def test_vectorizer_configuration_reports_sparse_features() -> None:
+    result = run_experiment(
+        ExperimentConfig(
+            label="characters",
+            seed=37,
+            ham_count=80,
+            spam_count=30,
+            min_precision=0.9,
+            vectorizer="char_tfidf",
+            classifier_c=0.5,
+            char_ngram_min=2,
+            char_ngram_max=4,
+            max_features=700,
+        )
+    )
+
+    diagnostics = result["vectorizer_diagnostics"]
+    assert result["model"] == "char_tfidf"
+    assert result["baseline_comparison"]["candidate"] == "char_tfidf"
+    assert 0 < diagnostics["features"] <= 700
+    assert 0 < diagnostics["density"] < 1
+
+
 def test_experiment_cli_writes_json(tmp_path) -> None:
     output = tmp_path / "result.json"
 

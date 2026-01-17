@@ -23,6 +23,46 @@ class ExperimentConfig:
     ham_count: int
     spam_count: int
     min_precision: float
+    vectorizer: str = "word_tfidf"
+    classifier_c: float = 1.0
+    word_ngram_max: int = 2
+    char_ngram_min: int = 3
+    char_ngram_max: int = 5
+    max_features: int = 25_000
+
+
+def build_model(config: ExperimentConfig, seed: int):
+    """Build a recorded TF-IDF configuration with a balanced logistic classifier."""
+    models = candidate_models(seed)
+    if config.vectorizer not in models:
+        raise ValueError(f"unsupported vectorizer: {config.vectorizer}")
+    model = models[config.vectorizer]
+    parameters: dict[str, object] = {"classifier__C": config.classifier_c}
+    if config.vectorizer == "word_tfidf":
+        parameters["tfidf__ngram_range"] = (1, config.word_ngram_max)
+    elif config.vectorizer == "char_tfidf":
+        parameters["tfidf__ngram_range"] = (config.char_ngram_min, config.char_ngram_max)
+        parameters["tfidf__max_features"] = config.max_features
+    else:
+        parameters["tfidf__word__ngram_range"] = (1, config.word_ngram_max)
+        parameters["tfidf__char__ngram_range"] = (
+            config.char_ngram_min,
+            config.char_ngram_max,
+        )
+        parameters["tfidf__char__max_features"] = config.max_features
+    return model.set_params(**parameters)
+
+
+def vectorizer_diagnostics(model, messages: pd.Series) -> dict[str, float | int]:
+    """Report fitted vocabulary dimensionality and sparse-matrix density."""
+    matrix = model.named_steps["tfidf"].transform(messages)
+    total_cells = matrix.shape[0] * matrix.shape[1]
+    return {
+        "documents": matrix.shape[0],
+        "features": matrix.shape[1],
+        "nonzero_values": int(matrix.nnz),
+        "density": float(matrix.nnz / total_cells) if total_cells else 0.0,
+    }
 
 
 def split_messages(
@@ -71,6 +111,42 @@ def precision_threshold_diagnostics(
     }
 
 
+def _class_balance(frame: pd.DataFrame) -> dict[str, float | int]:
+    spam = int(frame[TARGET].sum())
+    ham = int(len(frame) - spam)
+    return {
+        "messages": len(frame),
+        "ham": ham,
+        "spam": spam,
+        "spam_prevalence": spam / len(frame),
+        "ham_to_spam_ratio": ham / spam,
+    }
+
+
+def imbalance_diagnostics(
+    full: pd.DataFrame,
+    train: pd.DataFrame,
+    validation: pd.DataFrame,
+    test: pd.DataFrame,
+) -> dict[str, object]:
+    """Report class prevalence and its drift across stratified partitions."""
+    partitions = {
+        "full": _class_balance(full),
+        "train": _class_balance(train),
+        "validation": _class_balance(validation),
+        "test": _class_balance(test),
+    }
+    full_prevalence = float(partitions["full"]["spam_prevalence"])
+    return {
+        "partitions": partitions,
+        "max_absolute_prevalence_shift": max(
+            abs(float(report["spam_prevalence"]) - full_prevalence)
+            for name, report in partitions.items()
+            if name != "full"
+        ),
+    }
+
+
 def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     """Fit word TF-IDF and measure the selected precision operating point."""
     if min(config.ham_count, config.spam_count) < 20:
@@ -80,7 +156,10 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
 
     frame = validate_schema(make_smoke_data(config.ham_count, config.spam_count))
     train, validation, test = split_messages(frame, config.seed)
-    model = candidate_models(config.seed)["word_tfidf"]
+    balance = imbalance_diagnostics(frame, train, validation, test)
+    balance["requested"] = {"ham": config.ham_count, "spam": config.spam_count}
+    balance["deduplicated_messages"] = config.ham_count + config.spam_count - len(frame)
+    model = build_model(config, config.seed)
     model.fit(train["text"], train[TARGET])
     validation_probability = model.predict_proba(validation["text"])[:, 1]
     threshold = choose_precision_threshold(
@@ -99,16 +178,18 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
         "schema_version": 1,
         "config": asdict(config),
         "split": {"train": len(train), "validation": len(validation), "test": len(test)},
-        "model": "word_tfidf",
+        "model": config.vectorizer,
+        "vectorizer_diagnostics": vectorizer_diagnostics(model, train["text"]),
         "precision_constraint": threshold,
         "threshold_diagnostics": threshold_diagnostics,
+        "imbalance_diagnostics": balance,
         "validation_metrics": metrics(
             validation[TARGET], validation_probability, float(threshold["threshold"])
         ),
         "test_metrics": test_metrics,
         "keyword_baseline": baseline_metrics,
         "baseline_comparison": {
-            "candidate": "word_tfidf",
+            "candidate": config.vectorizer,
             "baseline": "keyword_rule",
             "average_precision_lift": model_ap - baseline_ap,
             "recall_lift": float(test_metrics["recall"]) - float(baseline_metrics["recall"]),
@@ -133,6 +214,16 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--ham-count", type=int, default=120)
     parser.add_argument("--spam-count", type=int, default=48)
     parser.add_argument("--min-precision", type=float, default=0.95)
+    parser.add_argument(
+        "--vectorizer",
+        choices=["word_tfidf", "char_tfidf", "word_char_tfidf"],
+        default="word_tfidf",
+    )
+    parser.add_argument("--classifier-c", type=float, default=1.0)
+    parser.add_argument("--word-ngram-max", type=int, default=2)
+    parser.add_argument("--char-ngram-min", type=int, default=3)
+    parser.add_argument("--char-ngram-max", type=int, default=5)
+    parser.add_argument("--max-features", type=int, default=25_000)
     args = parser.parse_args(argv)
     config = ExperimentConfig(
         label=args.label,
@@ -140,6 +231,12 @@ def main(argv: list[str] | None = None) -> None:
         ham_count=args.ham_count,
         spam_count=args.spam_count,
         min_precision=args.min_precision,
+        vectorizer=args.vectorizer,
+        classifier_c=args.classifier_c,
+        word_ngram_max=args.word_ngram_max,
+        char_ngram_min=args.char_ngram_min,
+        char_ngram_max=args.char_ngram_max,
+        max_features=args.max_features,
     )
     write_result(run_experiment(config), args.output)
     print(f"experiment {config.label} written to {args.output}")
