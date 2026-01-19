@@ -8,9 +8,11 @@ import pandas as pd
 from sms_spam_filter.experiments import (
     ExperimentConfig,
     main,
+    measure_seed_stability,
     obfuscate_messages,
     precision_threshold_diagnostics,
     run_experiment,
+    transform_message_length,
 )
 
 
@@ -145,6 +147,51 @@ def test_obfuscation_diagnostics_measure_probability_shift() -> None:
     assert diagnostics["scenario"] == "spaced"
     assert diagnostics["changed_messages"] > 0
     assert -1 <= diagnostics["mean_probability_shift"] <= 1
+
+
+def test_length_diagnostics_cover_test_and_measure_truncation() -> None:
+    result = run_experiment(
+        ExperimentConfig(
+            label="short-messages",
+            seed=43,
+            ham_count=100,
+            spam_count=40,
+            min_precision=0.9,
+            length_stress="truncate_24",
+        )
+    )
+
+    diagnostics = result["length_diagnostics"]
+    transformed = transform_message_length(pd.Series(["a" * 50, "short"]), "truncate_24")
+
+    assert transformed.str.len().max() == 24
+    assert (
+        sum(bucket["messages"] for bucket in diagnostics["buckets"].values())
+        == result["split"]["test"]
+    )
+    assert diagnostics["stress"]["scenario"] == "truncate_24"
+    assert diagnostics["stress"]["mean_length_after"] <= 24
+
+
+def test_seed_stability_repeats_threshold_selection() -> None:
+    config = ExperimentConfig(
+        label="stable",
+        seed=47,
+        ham_count=100,
+        spam_count=40,
+        min_precision=0.9,
+        vectorizer="word_char_tfidf",
+        max_features=1_000,
+        repeat_seeds=(101, 103, 107),
+    )
+
+    stability = measure_seed_stability(config)
+    result = run_experiment(config)
+
+    assert [run["seed"] for run in stability["runs"]] == [101, 103, 107]
+    assert stability["summary"]["run_count"] == 3
+    assert 0 <= stability["summary"]["recall_mean"] <= 1
+    assert result["seed_stability"] == stability
 
 
 def test_experiment_cli_writes_json(tmp_path) -> None:

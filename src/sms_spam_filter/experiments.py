@@ -8,6 +8,7 @@ import re
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -38,6 +39,8 @@ class ExperimentConfig:
     char_ngram_max: int = 5
     max_features: int = 25_000
     obfuscation: str = "none"
+    length_stress: str = "none"
+    repeat_seeds: tuple[int, ...] = ()
 
 
 def build_model(config: ExperimentConfig, seed: int):
@@ -117,6 +120,86 @@ def obfuscation_diagnostics(
         "original_detection_rate": float((original_probability >= threshold).mean()),
         "obfuscated_detection_rate": float((mutated_probability >= threshold).mean()),
         "mean_probability_shift": float((mutated_probability - original_probability).mean()),
+    }
+
+
+def transform_message_length(messages: pd.Series, kind: str) -> pd.Series:
+    """Apply a deterministic message-length transformation for inference stress."""
+    if kind == "none":
+        return messages.copy()
+    if kind == "truncate_24":
+        return messages.str.slice(0, 24)
+    if kind == "truncate_40":
+        return messages.str.slice(0, 40)
+    if kind == "append_neutral":
+        return messages + " please review this message after the scheduled meeting"
+    if kind == "repeat_twice":
+        return messages + " " + messages
+    raise ValueError(f"unsupported length stress: {kind}")
+
+
+def length_bucket_diagnostics(
+    frame: pd.DataFrame, probability, threshold: float
+) -> dict[str, dict[str, object]]:
+    """Measure classifier behavior for short, medium, and long messages."""
+    length = frame["text"].str.len()
+    buckets = pd.cut(
+        length,
+        bins=[-1, 35, 70, float("inf")],
+        labels=["short", "medium", "long"],
+    )
+    result: dict[str, dict[str, object]] = {}
+    for bucket in buckets.cat.categories:
+        mask = buckets.eq(bucket).to_numpy()
+        if not mask.any():
+            continue
+        report = metrics(frame.loc[mask, TARGET], probability[mask], threshold)
+        result[str(bucket)] = {
+            "messages": int(mask.sum()),
+            "mean_length": float(length.loc[mask].mean()),
+            "metrics": report,
+        }
+    return result
+
+
+def measure_seed_stability(config: ExperimentConfig) -> dict[str, object]:
+    """Repeat split, vectorization, fitting, and threshold selection for each seed."""
+    runs: list[dict[str, float | int | bool]] = []
+    frame = validate_schema(make_smoke_data(config.ham_count, config.spam_count))
+    for seed in config.repeat_seeds:
+        train, validation, test = split_messages(frame, seed)
+        model = build_model(config, seed)
+        model.fit(train["text"], train[TARGET])
+        validation_probability = model.predict_proba(validation["text"])[:, 1]
+        threshold = choose_precision_threshold(
+            validation[TARGET], validation_probability, config.min_precision
+        )
+        test_probability = model.predict_proba(test["text"])[:, 1]
+        report = metrics(test[TARGET], test_probability, float(threshold["threshold"]))
+        runs.append(
+            {
+                "seed": seed,
+                "average_precision": float(report["average_precision"]),
+                "precision": float(report["precision"]),
+                "recall": float(report["recall"]),
+                "threshold": float(threshold["threshold"]),
+                "constraint_met": bool(threshold["constraint_met"]),
+            }
+        )
+    if not runs:
+        return {"runs": [], "summary": {"run_count": 0}}
+    recalls = np.array([run["recall"] for run in runs], dtype=float)
+    thresholds = np.array([run["threshold"] for run in runs], dtype=float)
+    return {
+        "runs": runs,
+        "summary": {
+            "run_count": len(runs),
+            "recall_mean": float(recalls.mean()),
+            "recall_std": float(recalls.std()),
+            "threshold_mean": float(thresholds.mean()),
+            "threshold_std": float(thresholds.std()),
+            "constraints_met": int(sum(bool(run["constraint_met"]) for run in runs)),
+        },
     }
 
 
@@ -214,6 +297,7 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     balance = imbalance_diagnostics(frame, train, validation, test)
     balance["requested"] = {"ham": config.ham_count, "spam": config.spam_count}
     balance["deduplicated_messages"] = config.ham_count + config.spam_count - len(frame)
+    stability = measure_seed_stability(config)
     model = build_model(config, config.seed)
     model.fit(train["text"], train[TARGET])
     validation_probability = model.predict_proba(validation["text"])[:, 1]
@@ -225,6 +309,11 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
     )
     test_probability = model.predict_proba(test["text"])[:, 1]
     test_metrics = metrics(test[TARGET], test_probability, float(threshold["threshold"]))
+    length_stressed_text = transform_message_length(test["text"], config.length_stress)
+    length_stressed_probability = model.predict_proba(length_stressed_text)[:, 1]
+    length_stressed_metrics = metrics(
+        test[TARGET], length_stressed_probability, float(threshold["threshold"])
+    )
     obfuscation = obfuscation_diagnostics(
         model,
         test.loc[test[TARGET].eq(1), "text"],
@@ -242,9 +331,24 @@ def run_experiment(config: ExperimentConfig) -> dict[str, object]:
         "model": config.vectorizer,
         "vectorizer_diagnostics": vectorizer_diagnostics(model, train["text"]),
         "obfuscation_diagnostics": obfuscation,
+        "length_diagnostics": {
+            "buckets": length_bucket_diagnostics(
+                test, test_probability, float(threshold["threshold"])
+            ),
+            "stress": {
+                "scenario": config.length_stress,
+                "changed_messages": int((length_stressed_text != test["text"]).sum()),
+                "mean_length_before": float(test["text"].str.len().mean()),
+                "mean_length_after": float(length_stressed_text.str.len().mean()),
+                "metrics": length_stressed_metrics,
+                "recall_change": float(length_stressed_metrics["recall"])
+                - float(test_metrics["recall"]),
+            },
+        },
         "precision_constraint": threshold,
         "threshold_diagnostics": threshold_diagnostics,
         "imbalance_diagnostics": balance,
+        "seed_stability": stability,
         "validation_metrics": metrics(
             validation[TARGET], validation_probability, float(threshold["threshold"])
         ),
@@ -291,6 +395,16 @@ def main(argv: list[str] | None = None) -> None:
         choices=["none", "leetspeak", "spaced", "punctuated", "mixed_case"],
         default="none",
     )
+    parser.add_argument(
+        "--length-stress",
+        choices=["none", "truncate_24", "truncate_40", "append_neutral", "repeat_twice"],
+        default="none",
+    )
+    parser.add_argument(
+        "--repeat-seeds",
+        default="",
+        help="Comma-separated seeds for full pipeline stability checks",
+    )
     args = parser.parse_args(argv)
     config = ExperimentConfig(
         label=args.label,
@@ -305,6 +419,8 @@ def main(argv: list[str] | None = None) -> None:
         char_ngram_max=args.char_ngram_max,
         max_features=args.max_features,
         obfuscation=args.obfuscation,
+        length_stress=args.length_stress,
+        repeat_seeds=tuple(int(value) for value in args.repeat_seeds.split(",") if value),
     )
     write_result(run_experiment(config), args.output)
     print(f"experiment {config.label} written to {args.output}")
