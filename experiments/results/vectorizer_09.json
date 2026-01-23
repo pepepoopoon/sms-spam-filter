@@ -1,0 +1,268 @@
+{
+  "baseline_comparison": {
+    "average_precision_lift": 0.2982954545454546,
+    "baseline": "keyword_rule",
+    "candidate": "char_tfidf",
+    "recall_lift": 0.09090909090909094
+  },
+  "config": {
+    "char_ngram_max": 6,
+    "char_ngram_min": 4,
+    "classifier_c": 1.0,
+    "ham_count": 140,
+    "label": "char-4-6-5000",
+    "length_stress": "none",
+    "max_features": 5000,
+    "min_precision": 0.95,
+    "obfuscation": "none",
+    "repeat_seeds": [],
+    "seed": 3237,
+    "spam_count": 52,
+    "vectorizer": "char_tfidf",
+    "word_ngram_max": 2
+  },
+  "imbalance_diagnostics": {
+    "deduplicated_messages": 36,
+    "max_absolute_prevalence_shift": 0.010752688172043001,
+    "partitions": {
+      "full": {
+        "ham": 104,
+        "ham_to_spam_ratio": 2.0,
+        "messages": 156,
+        "spam": 52,
+        "spam_prevalence": 0.3333333333333333
+      },
+      "test": {
+        "ham": 21,
+        "ham_to_spam_ratio": 1.9090909090909092,
+        "messages": 32,
+        "spam": 11,
+        "spam_prevalence": 0.34375
+      },
+      "train": {
+        "ham": 62,
+        "ham_to_spam_ratio": 2.0,
+        "messages": 93,
+        "spam": 31,
+        "spam_prevalence": 0.3333333333333333
+      },
+      "validation": {
+        "ham": 21,
+        "ham_to_spam_ratio": 2.1,
+        "messages": 31,
+        "spam": 10,
+        "spam_prevalence": 0.3225806451612903
+      }
+    },
+    "requested": {
+      "ham": 140,
+      "spam": 52
+    }
+  },
+  "keyword_baseline": {
+    "average_precision": 0.7017045454545454,
+    "confusion_matrix": {
+      "fn": 5,
+      "fp": 0,
+      "tn": 21,
+      "tp": 6
+    },
+    "f1": 0.7058823529411765,
+    "precision": 1.0,
+    "recall": 0.5454545454545454,
+    "threshold": 0.5
+  },
+  "length_diagnostics": {
+    "buckets": {
+      "medium": {
+        "mean_length": 44.5,
+        "messages": 32,
+        "metrics": {
+          "average_precision": 1.0,
+          "confusion_matrix": {
+            "fn": 4,
+            "fp": 0,
+            "tn": 21,
+            "tp": 7
+          },
+          "f1": 0.7777777777777778,
+          "precision": 1.0,
+          "recall": 0.6363636363636364,
+          "threshold": 0.8017209220028036
+        }
+      }
+    },
+    "stress": {
+      "changed_messages": 0,
+      "mean_length_after": 44.5,
+      "mean_length_before": 44.5,
+      "metrics": {
+        "average_precision": 1.0,
+        "confusion_matrix": {
+          "fn": 4,
+          "fp": 0,
+          "tn": 21,
+          "tp": 7
+        },
+        "f1": 0.7777777777777778,
+        "precision": 1.0,
+        "recall": 0.6363636363636364,
+        "threshold": 0.8017209220028036
+      },
+      "recall_change": 0.0,
+      "scenario": "none"
+    }
+  },
+  "model": "char_tfidf",
+  "obfuscation_diagnostics": {
+    "changed_messages": 0,
+    "mean_probability_shift": 0.0,
+    "messages": 11,
+    "obfuscated_detection_rate": 0.6363636363636364,
+    "original_detection_rate": 0.6363636363636364,
+    "scenario": "none"
+  },
+  "precision_constraint": {
+    "constraint_met": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.8017209220028036
+  },
+  "schema_version": 1,
+  "seed_stability": {
+    "runs": [],
+    "summary": {
+      "run_count": 0
+    }
+  },
+  "split": {
+    "test": 32,
+    "train": 93,
+    "validation": 31
+  },
+  "test_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 4,
+      "fp": 0,
+      "tn": 21,
+      "tp": 7
+    },
+    "f1": 0.7777777777777778,
+    "precision": 1.0,
+    "recall": 0.6363636363636364,
+    "threshold": 0.8017209220028036
+  },
+  "threshold_diagnostics": {
+    "curve": [
+      {
+        "f1": 0.4878048780487805,
+        "precision": 0.3225806451612903,
+        "predicted_spam": 31,
+        "recall": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "f1": 0.8,
+        "precision": 0.6666666666666666,
+        "predicted_spam": 15,
+        "recall": 1.0,
+        "threshold": 0.2
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.3
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.4
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.6
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.7
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 1.0,
+        "threshold": 0.8
+      },
+      {
+        "f1": 0.0,
+        "precision": 0.0,
+        "predicted_spam": 0,
+        "recall": 0.0,
+        "threshold": 0.9
+      }
+    ],
+    "operating_points": {
+      "0.8": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8017209220028036
+      },
+      "0.9": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8017209220028036
+      },
+      "0.95": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8017209220028036
+      },
+      "0.99": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8017209220028036
+      }
+    }
+  },
+  "validation_metrics": {
+    "average_precision": 0.9999999999999999,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 21,
+      "tp": 10
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.8017209220028036
+  },
+  "vectorizer_diagnostics": {
+    "density": 0.06296023956435094,
+    "documents": 93,
+    "features": 1009,
+    "nonzero_values": 5908
+  }
+}
