@@ -1,0 +1,268 @@
+{
+  "baseline_comparison": {
+    "average_precision_lift": 0.16666666666666663,
+    "baseline": "keyword_rule",
+    "candidate": "word_tfidf",
+    "recall_lift": 0.0
+  },
+  "config": {
+    "char_ngram_max": 5,
+    "char_ngram_min": 3,
+    "classifier_c": 1.0,
+    "ham_count": 180,
+    "label": "imbalance-180-26",
+    "length_stress": "none",
+    "max_features": 25000,
+    "min_precision": 0.95,
+    "obfuscation": "none",
+    "repeat_seeds": [],
+    "seed": 2179,
+    "spam_count": 26,
+    "vectorizer": "word_tfidf",
+    "word_ngram_max": 2
+  },
+  "imbalance_diagnostics": {
+    "deduplicated_messages": 56,
+    "max_absolute_prevalence_shift": 0.006666666666666682,
+    "partitions": {
+      "full": {
+        "ham": 124,
+        "ham_to_spam_ratio": 4.769230769230769,
+        "messages": 150,
+        "spam": 26,
+        "spam_prevalence": 0.17333333333333334
+      },
+      "test": {
+        "ham": 25,
+        "ham_to_spam_ratio": 5.0,
+        "messages": 30,
+        "spam": 5,
+        "spam_prevalence": 0.16666666666666666
+      },
+      "train": {
+        "ham": 74,
+        "ham_to_spam_ratio": 4.625,
+        "messages": 90,
+        "spam": 16,
+        "spam_prevalence": 0.17777777777777778
+      },
+      "validation": {
+        "ham": 25,
+        "ham_to_spam_ratio": 5.0,
+        "messages": 30,
+        "spam": 5,
+        "spam_prevalence": 0.16666666666666666
+      }
+    },
+    "requested": {
+      "ham": 180,
+      "spam": 26
+    }
+  },
+  "keyword_baseline": {
+    "average_precision": 0.8333333333333334,
+    "confusion_matrix": {
+      "fn": 1,
+      "fp": 0,
+      "tn": 25,
+      "tp": 4
+    },
+    "f1": 0.8888888888888888,
+    "precision": 1.0,
+    "recall": 0.8,
+    "threshold": 0.5
+  },
+  "length_diagnostics": {
+    "buckets": {
+      "medium": {
+        "mean_length": 45.13333333333333,
+        "messages": 30,
+        "metrics": {
+          "average_precision": 1.0,
+          "confusion_matrix": {
+            "fn": 1,
+            "fp": 0,
+            "tn": 25,
+            "tp": 4
+          },
+          "f1": 0.8888888888888888,
+          "precision": 1.0,
+          "recall": 0.8,
+          "threshold": 0.7783235843469405
+        }
+      }
+    },
+    "stress": {
+      "changed_messages": 0,
+      "mean_length_after": 45.13333333333333,
+      "mean_length_before": 45.13333333333333,
+      "metrics": {
+        "average_precision": 1.0,
+        "confusion_matrix": {
+          "fn": 1,
+          "fp": 0,
+          "tn": 25,
+          "tp": 4
+        },
+        "f1": 0.8888888888888888,
+        "precision": 1.0,
+        "recall": 0.8,
+        "threshold": 0.7783235843469405
+      },
+      "recall_change": 0.0,
+      "scenario": "none"
+    }
+  },
+  "model": "word_tfidf",
+  "obfuscation_diagnostics": {
+    "changed_messages": 0,
+    "mean_probability_shift": 0.0,
+    "messages": 5,
+    "obfuscated_detection_rate": 0.8,
+    "original_detection_rate": 0.8,
+    "scenario": "none"
+  },
+  "precision_constraint": {
+    "constraint_met": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7783235843469405
+  },
+  "schema_version": 1,
+  "seed_stability": {
+    "runs": [],
+    "summary": {
+      "run_count": 0
+    }
+  },
+  "split": {
+    "test": 30,
+    "train": 90,
+    "validation": 30
+  },
+  "test_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 1,
+      "fp": 0,
+      "tn": 25,
+      "tp": 4
+    },
+    "f1": 0.8888888888888888,
+    "precision": 1.0,
+    "recall": 0.8,
+    "threshold": 0.7783235843469405
+  },
+  "threshold_diagnostics": {
+    "curve": [
+      {
+        "f1": 0.2857142857142857,
+        "precision": 0.16666666666666666,
+        "predicted_spam": 30,
+        "recall": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "f1": 0.5555555555555556,
+        "precision": 0.38461538461538464,
+        "predicted_spam": 13,
+        "recall": 1.0,
+        "threshold": 0.2
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 5,
+        "recall": 1.0,
+        "threshold": 0.3
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 5,
+        "recall": 1.0,
+        "threshold": 0.4
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 5,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 5,
+        "recall": 1.0,
+        "threshold": 0.6
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 5,
+        "recall": 1.0,
+        "threshold": 0.7
+      },
+      {
+        "f1": 0.3333333333333333,
+        "precision": 1.0,
+        "predicted_spam": 1,
+        "recall": 0.2,
+        "threshold": 0.8
+      },
+      {
+        "f1": 0.0,
+        "precision": 0.0,
+        "predicted_spam": 0,
+        "recall": 0.0,
+        "threshold": 0.9
+      }
+    ],
+    "operating_points": {
+      "0.8": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7783235843469405
+      },
+      "0.9": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7783235843469405
+      },
+      "0.95": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7783235843469405
+      },
+      "0.99": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7783235843469405
+      }
+    }
+  },
+  "validation_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 25,
+      "tp": 5
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7783235843469405
+  },
+  "vectorizer_diagnostics": {
+    "density": 0.0490073145245559,
+    "documents": 90,
+    "features": 319,
+    "nonzero_values": 1407
+  }
+}

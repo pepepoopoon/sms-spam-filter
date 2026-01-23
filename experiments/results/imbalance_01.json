@@ -1,0 +1,268 @@
+{
+  "baseline_comparison": {
+    "average_precision_lift": 0.16666666666666674,
+    "baseline": "keyword_rule",
+    "candidate": "word_tfidf",
+    "recall_lift": 0.16666666666666674
+  },
+  "config": {
+    "char_ngram_max": 5,
+    "char_ngram_min": 3,
+    "classifier_c": 1.0,
+    "ham_count": 60,
+    "label": "imbalance-60-60",
+    "length_stress": "none",
+    "max_features": 25000,
+    "min_precision": 0.95,
+    "obfuscation": "none",
+    "repeat_seeds": [],
+    "seed": 2101,
+    "spam_count": 60,
+    "vectorizer": "word_tfidf",
+    "word_ngram_max": 2
+  },
+  "imbalance_diagnostics": {
+    "deduplicated_messages": 0,
+    "max_absolute_prevalence_shift": 0.0,
+    "partitions": {
+      "full": {
+        "ham": 60,
+        "ham_to_spam_ratio": 1.0,
+        "messages": 120,
+        "spam": 60,
+        "spam_prevalence": 0.5
+      },
+      "test": {
+        "ham": 12,
+        "ham_to_spam_ratio": 1.0,
+        "messages": 24,
+        "spam": 12,
+        "spam_prevalence": 0.5
+      },
+      "train": {
+        "ham": 36,
+        "ham_to_spam_ratio": 1.0,
+        "messages": 72,
+        "spam": 36,
+        "spam_prevalence": 0.5
+      },
+      "validation": {
+        "ham": 12,
+        "ham_to_spam_ratio": 1.0,
+        "messages": 24,
+        "spam": 12,
+        "spam_prevalence": 0.5
+      }
+    },
+    "requested": {
+      "ham": 60,
+      "spam": 60
+    }
+  },
+  "keyword_baseline": {
+    "average_precision": 0.8333333333333333,
+    "confusion_matrix": {
+      "fn": 4,
+      "fp": 0,
+      "tn": 12,
+      "tp": 8
+    },
+    "f1": 0.8,
+    "precision": 1.0,
+    "recall": 0.6666666666666666,
+    "threshold": 0.5
+  },
+  "length_diagnostics": {
+    "buckets": {
+      "medium": {
+        "mean_length": 45.958333333333336,
+        "messages": 24,
+        "metrics": {
+          "average_precision": 1.0,
+          "confusion_matrix": {
+            "fn": 2,
+            "fp": 0,
+            "tn": 12,
+            "tp": 10
+          },
+          "f1": 0.9090909090909091,
+          "precision": 1.0,
+          "recall": 0.8333333333333334,
+          "threshold": 0.7469889977912864
+        }
+      }
+    },
+    "stress": {
+      "changed_messages": 0,
+      "mean_length_after": 45.958333333333336,
+      "mean_length_before": 45.958333333333336,
+      "metrics": {
+        "average_precision": 1.0,
+        "confusion_matrix": {
+          "fn": 2,
+          "fp": 0,
+          "tn": 12,
+          "tp": 10
+        },
+        "f1": 0.9090909090909091,
+        "precision": 1.0,
+        "recall": 0.8333333333333334,
+        "threshold": 0.7469889977912864
+      },
+      "recall_change": 0.0,
+      "scenario": "none"
+    }
+  },
+  "model": "word_tfidf",
+  "obfuscation_diagnostics": {
+    "changed_messages": 0,
+    "mean_probability_shift": 0.0,
+    "messages": 12,
+    "obfuscated_detection_rate": 0.8333333333333334,
+    "original_detection_rate": 0.8333333333333334,
+    "scenario": "none"
+  },
+  "precision_constraint": {
+    "constraint_met": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7469889977912864
+  },
+  "schema_version": 1,
+  "seed_stability": {
+    "runs": [],
+    "summary": {
+      "run_count": 0
+    }
+  },
+  "split": {
+    "test": 24,
+    "train": 72,
+    "validation": 24
+  },
+  "test_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 2,
+      "fp": 0,
+      "tn": 12,
+      "tp": 10
+    },
+    "f1": 0.9090909090909091,
+    "precision": 1.0,
+    "recall": 0.8333333333333334,
+    "threshold": 0.7469889977912864
+  },
+  "threshold_diagnostics": {
+    "curve": [
+      {
+        "f1": 0.6666666666666666,
+        "precision": 0.5,
+        "predicted_spam": 24,
+        "recall": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "f1": 0.6857142857142857,
+        "precision": 0.5217391304347826,
+        "predicted_spam": 23,
+        "recall": 1.0,
+        "threshold": 0.2
+      },
+      {
+        "f1": 0.8571428571428571,
+        "precision": 0.75,
+        "predicted_spam": 16,
+        "recall": 1.0,
+        "threshold": 0.3
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.4
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.6
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.7
+      },
+      {
+        "f1": 0.6666666666666666,
+        "precision": 1.0,
+        "predicted_spam": 6,
+        "recall": 0.5,
+        "threshold": 0.8
+      },
+      {
+        "f1": 0.0,
+        "precision": 0.0,
+        "predicted_spam": 0,
+        "recall": 0.0,
+        "threshold": 0.9
+      }
+    ],
+    "operating_points": {
+      "0.8": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7469889977912864
+      },
+      "0.9": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7469889977912864
+      },
+      "0.95": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7469889977912864
+      },
+      "0.99": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7469889977912864
+      }
+    }
+  },
+  "validation_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 12,
+      "tp": 12
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7469889977912864
+  },
+  "vectorizer_diagnostics": {
+    "density": 0.0445584881068752,
+    "documents": 72,
+    "features": 341,
+    "nonzero_values": 1094
+  }
+}
