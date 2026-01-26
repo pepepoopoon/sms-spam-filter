@@ -1,0 +1,268 @@
+{
+  "baseline_comparison": {
+    "average_precision_lift": 0.2982954545454546,
+    "baseline": "keyword_rule",
+    "candidate": "word_char_tfidf",
+    "recall_lift": 0.4545454545454546
+  },
+  "config": {
+    "char_ngram_max": 5,
+    "char_ngram_min": 3,
+    "classifier_c": 1.0,
+    "ham_count": 140,
+    "label": "obfuscation-leetspeak-combined",
+    "length_stress": "none",
+    "max_features": 3000,
+    "min_precision": 0.95,
+    "obfuscation": "leetspeak",
+    "repeat_seeds": [],
+    "seed": 4139,
+    "spam_count": 56,
+    "vectorizer": "word_char_tfidf",
+    "word_ngram_max": 2
+  },
+  "imbalance_diagnostics": {
+    "deduplicated_messages": 36,
+    "max_absolute_prevalence_shift": 0.006249999999999978,
+    "partitions": {
+      "full": {
+        "ham": 104,
+        "ham_to_spam_ratio": 1.8571428571428572,
+        "messages": 160,
+        "spam": 56,
+        "spam_prevalence": 0.35
+      },
+      "test": {
+        "ham": 21,
+        "ham_to_spam_ratio": 1.9090909090909092,
+        "messages": 32,
+        "spam": 11,
+        "spam_prevalence": 0.34375
+      },
+      "train": {
+        "ham": 62,
+        "ham_to_spam_ratio": 1.8235294117647058,
+        "messages": 96,
+        "spam": 34,
+        "spam_prevalence": 0.3541666666666667
+      },
+      "validation": {
+        "ham": 21,
+        "ham_to_spam_ratio": 1.9090909090909092,
+        "messages": 32,
+        "spam": 11,
+        "spam_prevalence": 0.34375
+      }
+    },
+    "requested": {
+      "ham": 140,
+      "spam": 56
+    }
+  },
+  "keyword_baseline": {
+    "average_precision": 0.7017045454545454,
+    "confusion_matrix": {
+      "fn": 5,
+      "fp": 0,
+      "tn": 21,
+      "tp": 6
+    },
+    "f1": 0.7058823529411765,
+    "precision": 1.0,
+    "recall": 0.5454545454545454,
+    "threshold": 0.5
+  },
+  "length_diagnostics": {
+    "buckets": {
+      "medium": {
+        "mean_length": 45.1875,
+        "messages": 32,
+        "metrics": {
+          "average_precision": 1.0,
+          "confusion_matrix": {
+            "fn": 0,
+            "fp": 0,
+            "tn": 21,
+            "tp": 11
+          },
+          "f1": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "threshold": 0.8498902089059993
+        }
+      }
+    },
+    "stress": {
+      "changed_messages": 0,
+      "mean_length_after": 45.1875,
+      "mean_length_before": 45.1875,
+      "metrics": {
+        "average_precision": 1.0,
+        "confusion_matrix": {
+          "fn": 0,
+          "fp": 0,
+          "tn": 21,
+          "tp": 11
+        },
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8498902089059993
+      },
+      "recall_change": 0.0,
+      "scenario": "none"
+    }
+  },
+  "model": "word_char_tfidf",
+  "obfuscation_diagnostics": {
+    "changed_messages": 6,
+    "mean_probability_shift": -0.045723956481203094,
+    "messages": 11,
+    "obfuscated_detection_rate": 0.7272727272727273,
+    "original_detection_rate": 1.0,
+    "scenario": "leetspeak"
+  },
+  "precision_constraint": {
+    "constraint_met": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.8498902089059993
+  },
+  "schema_version": 1,
+  "seed_stability": {
+    "runs": [],
+    "summary": {
+      "run_count": 0
+    }
+  },
+  "split": {
+    "test": 32,
+    "train": 96,
+    "validation": 32
+  },
+  "test_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 21,
+      "tp": 11
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.8498902089059993
+  },
+  "threshold_diagnostics": {
+    "curve": [
+      {
+        "f1": 0.55,
+        "precision": 0.3793103448275862,
+        "predicted_spam": 29,
+        "recall": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.2
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.3
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.4
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.6
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.7
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 11,
+        "recall": 1.0,
+        "threshold": 0.8
+      },
+      {
+        "f1": 0.7058823529411765,
+        "precision": 1.0,
+        "predicted_spam": 6,
+        "recall": 0.5454545454545454,
+        "threshold": 0.9
+      }
+    ],
+    "operating_points": {
+      "0.8": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8498902089059993
+      },
+      "0.9": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8498902089059993
+      },
+      "0.95": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8498902089059993
+      },
+      "0.99": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.8498902089059993
+      }
+    }
+  },
+  "validation_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 21,
+      "tp": 11
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.8498902089059993
+  },
+  "vectorizer_diagnostics": {
+    "density": 0.06098598598598599,
+    "documents": 96,
+    "features": 1665,
+    "nonzero_values": 9748
+  }
+}
