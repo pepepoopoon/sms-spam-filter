@@ -1,0 +1,268 @@
+{
+  "baseline_comparison": {
+    "average_precision_lift": 0.10784313725490191,
+    "baseline": "keyword_rule",
+    "candidate": "word_tfidf",
+    "recall_lift": 0.16666666666666663
+  },
+  "config": {
+    "char_ngram_max": 5,
+    "char_ngram_min": 3,
+    "classifier_c": 1.0,
+    "ham_count": 150,
+    "label": "length-truncate_24-word",
+    "length_stress": "truncate_24",
+    "max_features": 4000,
+    "min_precision": 0.95,
+    "obfuscation": "none",
+    "repeat_seeds": [],
+    "seed": 5101,
+    "spam_count": 60,
+    "vectorizer": "word_tfidf",
+    "word_ngram_max": 2
+  },
+  "imbalance_diagnostics": {
+    "deduplicated_messages": 41,
+    "max_absolute_prevalence_shift": 0.002088409328228291,
+    "partitions": {
+      "full": {
+        "ham": 109,
+        "ham_to_spam_ratio": 1.8166666666666667,
+        "messages": 169,
+        "spam": 60,
+        "spam_prevalence": 0.35502958579881655
+      },
+      "test": {
+        "ham": 22,
+        "ham_to_spam_ratio": 1.8333333333333333,
+        "messages": 34,
+        "spam": 12,
+        "spam_prevalence": 0.35294117647058826
+      },
+      "train": {
+        "ham": 65,
+        "ham_to_spam_ratio": 1.8055555555555556,
+        "messages": 101,
+        "spam": 36,
+        "spam_prevalence": 0.3564356435643564
+      },
+      "validation": {
+        "ham": 22,
+        "ham_to_spam_ratio": 1.8333333333333333,
+        "messages": 34,
+        "spam": 12,
+        "spam_prevalence": 0.35294117647058826
+      }
+    },
+    "requested": {
+      "ham": 150,
+      "spam": 60
+    }
+  },
+  "keyword_baseline": {
+    "average_precision": 0.8921568627450981,
+    "confusion_matrix": {
+      "fn": 2,
+      "fp": 0,
+      "tn": 22,
+      "tp": 10
+    },
+    "f1": 0.9090909090909091,
+    "precision": 1.0,
+    "recall": 0.8333333333333334,
+    "threshold": 0.5
+  },
+  "length_diagnostics": {
+    "buckets": {
+      "medium": {
+        "mean_length": 44.44117647058823,
+        "messages": 34,
+        "metrics": {
+          "average_precision": 1.0,
+          "confusion_matrix": {
+            "fn": 0,
+            "fp": 0,
+            "tn": 22,
+            "tp": 12
+          },
+          "f1": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "threshold": 0.7988064107402191
+        }
+      }
+    },
+    "stress": {
+      "changed_messages": 34,
+      "mean_length_after": 24.0,
+      "mean_length_before": 44.44117647058823,
+      "metrics": {
+        "average_precision": 1.0,
+        "confusion_matrix": {
+          "fn": 11,
+          "fp": 0,
+          "tn": 22,
+          "tp": 1
+        },
+        "f1": 0.15384615384615385,
+        "precision": 1.0,
+        "recall": 0.08333333333333333,
+        "threshold": 0.7988064107402191
+      },
+      "recall_change": -0.9166666666666666,
+      "scenario": "truncate_24"
+    }
+  },
+  "model": "word_tfidf",
+  "obfuscation_diagnostics": {
+    "changed_messages": 0,
+    "mean_probability_shift": 0.0,
+    "messages": 12,
+    "obfuscated_detection_rate": 1.0,
+    "original_detection_rate": 1.0,
+    "scenario": "none"
+  },
+  "precision_constraint": {
+    "constraint_met": true,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7988064107402191
+  },
+  "schema_version": 1,
+  "seed_stability": {
+    "runs": [],
+    "summary": {
+      "run_count": 0
+    }
+  },
+  "split": {
+    "test": 34,
+    "train": 101,
+    "validation": 34
+  },
+  "test_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 22,
+      "tp": 12
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7988064107402191
+  },
+  "threshold_diagnostics": {
+    "curve": [
+      {
+        "f1": 0.5217391304347826,
+        "precision": 0.35294117647058826,
+        "predicted_spam": 34,
+        "recall": 1.0,
+        "threshold": 0.1
+      },
+      {
+        "f1": 0.8571428571428571,
+        "precision": 0.75,
+        "predicted_spam": 16,
+        "recall": 1.0,
+        "threshold": 0.2
+      },
+      {
+        "f1": 0.96,
+        "precision": 0.9230769230769231,
+        "predicted_spam": 13,
+        "recall": 1.0,
+        "threshold": 0.3
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.4
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.6
+      },
+      {
+        "f1": 1.0,
+        "precision": 1.0,
+        "predicted_spam": 12,
+        "recall": 1.0,
+        "threshold": 0.7
+      },
+      {
+        "f1": 0.9090909090909091,
+        "precision": 1.0,
+        "predicted_spam": 10,
+        "recall": 0.8333333333333334,
+        "threshold": 0.8
+      },
+      {
+        "f1": 0.0,
+        "precision": 0.0,
+        "predicted_spam": 0,
+        "recall": 0.0,
+        "threshold": 0.9
+      }
+    ],
+    "operating_points": {
+      "0.8": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7988064107402191
+      },
+      "0.9": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7988064107402191
+      },
+      "0.95": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7988064107402191
+      },
+      "0.99": {
+        "constraint_met": true,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.7988064107402191
+      }
+    }
+  },
+  "validation_metrics": {
+    "average_precision": 1.0,
+    "confusion_matrix": {
+      "fn": 0,
+      "fp": 0,
+      "tn": 22,
+      "tp": 12
+    },
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "threshold": 0.7988064107402191
+  },
+  "vectorizer_diagnostics": {
+    "density": 0.04071266501650165,
+    "documents": 101,
+    "features": 384,
+    "nonzero_values": 1579
+  }
+}
